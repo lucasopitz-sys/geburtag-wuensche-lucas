@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meine Geburtstagswunschliste</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        /* ===== START SCREEN ===== */
+        .start-screen {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .start-screen h1 {
+            color: #667eea;
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+
+        .start-screen .emoji {
+            font-size: 5em;
+            margin: 30px 0;
+        }
+
+        .start-screen p {
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 30px;
+        }
+
+        .big-button {
+            padding: 25px 50px;
+            font-size: 1.3em;
+            font-weight: 700;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            min-width: 280px;
+        }
+
+        .big-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        /* ===== FINDER SCREEN ===== */
+        .finder-screen h2 {
+            color: #667eea;
+            font-size: 2.2em;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 10px;
+            transition: width 0.3s;
+        }
+
+        .question-container {
+            margin-bottom: 30px;
+        }
+
+        .question-step {
+            display: none;
+        }
+
+        .question-step.active {
+            display: block;
+        }
+
+        .question-title {
+            font-size: 1.5em;
+            color: #333;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .option-card {
+            padding: 25px;
+            border: 3px solid #e0e0e0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            background: white;
+        }
+
+        .option-card:hover {
+            border-color: #667eea;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .option-card.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        }
+
+        .option-icon {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .option-label {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .navigation-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .nav-button {
+            padding: 15px 40px;
+            font-size: 1.1em;
+            font-weight: 600;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .nav-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-back {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .btn-next {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-next:not(:disabled):hover,
+        .btn-back:not(:disabled):hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        /* ===== ALL WISHES SCREEN ===== */
+        .all-wishes-screen h2 {
+            color: #667eea;
+            font-size: 2.2em;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .back-home {
+            display: inline-block;
+            padding: 12px 25px;
+            background: #e0e0e0;
+            color: #333;
+            text-decoration: none;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .back-home:hover {
+            background: #d0d0d0;
+            transform: translateY(-2px);
+        }
+
+        .wishlist {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .wish-item {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .wish-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            border-color: #667eea;
+        }
+
+        .stars-rating {
+            display: flex;
+            gap: 3px;
+            margin-bottom: 12px;
+            font-size: 1.2em;
+        }
+
+        .star {
+            color: #ffd700;
+        }
+
+        .star.empty {
+            color: #e0e0e0;
+        }
+
+        .wish-title {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .wish-description {
+            color: #666;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .wish-link {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 0.9em;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+
+        .wish-link:hover {
+            text-decoration: underline;
+        }
+
+        .wish-price {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: #667eea;
+            margin-top: 10px;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+            font-size: 1.2em;
+        }
+
+        .stats {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            color: #666;
+        }
+
+        /* ===== RESULTS SCREEN ===== */
+        .results-screen h2 {
+            color: #667eea;
+            font-size: 2.2em;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .results-subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            .start-screen h1 {
+                font-size: 2em;
+            }
+
+            .big-button {
+                min-width: 100%;
+            }
+
+            .wishlist {
+                grid-template-columns: 1fr;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- START SCREEN -->
+        <div id="startScreen" class="screen active start-screen">
+            <h1> Meine Geburtstagswunschliste</h1>
+            <p>Willkommen! Ich freue mich, dass du hier bist.<br>
+            Wie möchtest du meine Wünsche entdecken?<br>
+			Bedenke Sterne stehen für Priorität bzw. was ich mir am meisten Wünsche.<br>
+			Ausserdem erwarte ich natürlich nicht das mir alle dieser wünsche erfüllt werden,<br>
+			deshalb habe ich auch etwas mehr aufgeschrieben.</p>
+            
+            <div class="button-group">
+                <button class="big-button btn-primary" onclick="showScreen('allWishesScreen')">
+                    📋 Alle Wünsche zeigen
+                </button>
+                <button class="big-button btn-secondary" onclick="showScreen('finderScreen')">
+                    🔍 Geschenk-Finder starten
+                </button>
+            </div>
+        </div>
+
+        <!-- FINDER SCREEN -->
+        <div id="finderScreen" class="screen finder-screen">
+            <h2>🎯 Geschenk-Finder</h2>
+            <p style="text-align: center; color: #666; margin-bottom: 30px;">
+                Wähle deinen Preisbereich und finde passende Geschenke!
+            </p>
+
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar" style="width: 100%;"></div>
+            </div>
+
+            <div class="question-container">
+                <!-- FRAGE: Preisbereich -->
+                <div class="question-step active" data-step="1">
+                    <h3 class="question-title">Was möchtest du ausgeben?</h3>
+                    <div class="options-grid">
+                        <div class="option-card" onclick="selectOption(this, 'price', '0-30')">
+                            <div class="option-icon">💰</div>
+                            <div class="option-label">Bis 30€</div>
+                        </div>
+                        <div class="option-card" onclick="selectOption(this, 'price', '30-50')">
+                            <div class="option-icon">💵</div>
+                            <div class="option-label">30€ - 50€</div>
+                        </div>
+                        <div class="option-card" onclick="selectOption(this, 'price', '50-80')">
+                            <div class="option-icon">💸</div>
+                            <div class="option-label">50€ - 80€</div>
+                        </div>
+                        <div class="option-card" onclick="selectOption(this, 'price', '80-100')">
+                            <div class="option-icon">💎</div>
+                            <div class="option-label">80€ - 100€</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="navigation-buttons">
+                <button class="nav-button btn-next" onclick="nextStep()" id="nextButton" disabled>
+                    Ergebnisse anzeigen →
+                </button>
+            </div>
+        </div>
+
+        <!-- ALL WISHES SCREEN -->
+        <div id="allWishesScreen" class="screen all-wishes-screen">
+            <a href="#" class="back-home" onclick="showScreen('startScreen'); return false;">← Zurück zur Startseite</a>
+            <h2>📋 Alle meine Wünsche</h2>
+            <div class="stats" id="allWishesStats"></div>
+            <div class="wishlist" id="allWishlist"></div>
+        </div>
+
+        <!-- RESULTS SCREEN -->
+        <div id="resultsScreen" class="screen results-screen">
+            <a href="#" class="back-home" onclick="showScreen('startScreen'); return false;">← Zurück zur Startseite</a>
+            <h2>🎁 Deine Ergebnisse</h2>
+            <p class="results-subtitle">Basierend auf deinen Angaben haben wir diese Geschenke für dich gefunden:</p>
+            <div class="stats" id="resultsStats"></div>
+            <div class="wishlist" id="resultsWishlist"></div>
+            <div class="no-results" id="noResults" style="display: none;">
+                Leider keine passenden Wünsche gefunden. Probiere andere Filter aus!
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========================================
+        // HIER DEINE WÜNSCHE EINFÜGEN
+        // ========================================
+        const wishes = [
+            {
+                title: "Nike-mind 001",
+                description: "Atmungsaktive Schuhe im Mule design und 22 anatomisch platzierten druckpunkten zur aktivierung der Leistungsgeprägten Gehirnzonen.",
+                price: 90,
+                stars: 4,  // Priorität: 1-5 Sterne
+                link: "https://www.nike.com/de/t/mind-001-pregame-mules-2YHliYUW/HQ4307-003"
+            },
+            {
+                title: "Valentino-Born in Roma intense",
+                description: "Eau de Parfum",
+                price: 70,
+                stars: 3,
+                link: "https://www.idealo.de/preisvergleich/OffersOfProduct/202304221_-born-in-roma-uomo-intense-eau-de-parfum-valentino-garavani.html?gclid=Cj0KCQiA7fbLBhDJARIsAOAqhsd2CSVCNhkdwo0k3G-5OunXmhZqXYG99wICrLSeCQhBFyli9qQyleAaAs31EALw_wcB&utm_campaign=SEM-DE-WEB-CVR-OOP-1900892531&utm_medium=cpc&utm_source=google"
+            },
+            {
+                title: "Nike-Socken",
+                description: "",
+                price: 25,
+                stars: 5,
+                link: "https://www.idealo.de/preisvergleich/OffersOfProduct/205149882_-everyday-plus-cushioned-socks-sx6897-white-nike.html?gclid=Cj0KCQiA7fbLBhDJARIsAOAqhsdLAd1ZRcJtKMqDiUhIugwBhwuEt0098qcIz3DVIom7aUHLjFldRogaAuT1EALw_wcB&utm_campaign=SEM-DE-WEB-CVR-SHOPPING-22718332009&utm_medium=cpc&utm_source=google"
+            },
+            {
+                title: "Don Toliver-T-shirt bundle",
+                description: "",
+                price: 30,
+                stars: 4,
+                link: "https://dontoliver.com/products/octane-lab-tee-box-set"
+            },
+            {
+                title: "Leinen Hose",
+                description: "LOCKER GESCHNITTENE LEINENHOSE für den Sommer",
+                price: 55,
+                stars: 4,
+                link: "https://www.zalando.de/urban-classics-loose-stoffhose-whitesand-ur622e08f-a11.html"
+            },
+            {
+                title: "Weekday-Hoodie Schwarz (L)",
+                description: "Ein Hoodie mit lockerem Schnitt und weicher Struktur. Aus weichem Baumwollfleece gefertigt, überzeugt er mit einer gefalteten Kapuzenkonstruktion, überschnittenen Schultern und einer großzügigen Kängurutasche. Gerippte Bündchen sowie dezente Raffungen an Ärmeln und Saum sorgen für eine entspannte, abgerundete Silhouette.",
+                price: 45,
+                stars: 4,
+                link: "https://www.weekday.com/de-de/p/men/basics/hoodies/loose-fit-hoodie-black-1300762001/"
+            },
+            {
+                title: "Hoodie-Grau (L)",
+                description: "Bedruckter Hoodie aus schwerem Baumwollsweat im Washed-Look. Überschnittene Schultern, eine Kängurutasche vorn und breite Rippbündchen an Ärmelabschlüssen und Saum. Oversized Fit für eine besonders lässige Baggy-Silhouette.",
+                price: 40,
+                stars: 5,
+                link: "https://www2.hm.com/de_de/productpage.1305086003.html"
+            },
+            {
+                title: "Weekday Shorts (Grösse 32)",
+                description: "Eine Shorts mit mittlerer Bundhöhe und lockerer, weiter Passform, gefertigt aus robustem Bio-Baumwoll-Denim mit recycelter Baumwolle. Diese Jorts haben ein klassisches 5-Pocket-Design und umgeschlagene Säume.",
+                price: 59,
+                stars: 5,
+                link: "https://www.weekday.com/de-de/p/men/shorts/jeans/astro-denim-loose-baggy-shorts-blue-stream-medium-blue-1161941009/"
+            }
+        ];
+        // ========================================
+        // ENDE DER WÜNSCHE
+        // ========================================
+
+        // State Management
+        let currentStep = 1;
+        let selectedFilters = {
+            price: null
+        };
+
+        // Screen Management
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            document.getElementById(screenId).classList.add('active');
+
+            if (screenId === 'allWishesScreen') {
+                renderAllWishes();
+            } else if (screenId === 'startScreen') {
+                resetFinder();
+            }
+        }
+
+        // Finder Logic
+        function selectOption(element, filterType, value) {
+            // Deselect all options in this group
+            element.parentElement.querySelectorAll('.option-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            // Select clicked option
+            element.classList.add('selected');
+            selectedFilters[filterType] = value;
+            
+            // Enable next button and change it to show results
+            document.getElementById('nextButton').disabled = false;
+            document.getElementById('nextButton').textContent = 'Ergebnisse anzeigen →';
+        }
+
+        function nextStep() {
+            showResults();
+        }
+
+        function previousStep() {
+            // Not needed anymore since we only have one step
+        }
+
+        function showStep(stepNumber) {
+            document.querySelectorAll('.question-step').forEach(step => {
+                step.classList.remove('active');
+            });
+            document.querySelector(`.question-step[data-step="${stepNumber}"]`).classList.add('active');
+        }
+
+        function updateProgress() {
+            // Set to 100% since we only have one step
+            document.getElementById('progressBar').style.width = '100%';
+        }
+
+        function resetFinder() {
+            currentStep = 1;
+            selectedFilters = { price: null };
+            updateProgress();
+            showStep(1);
+            document.querySelectorAll('.option-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            document.getElementById('nextButton').disabled = true;
+            document.getElementById('nextButton').textContent = 'Ergebnisse anzeigen →';
+        }
+
+        function showResults() {
+            showScreen('resultsScreen');
+            renderResults();
+        }
+
+        function createStarsHTML(stars) {
+            let starsHTML = '<div class="stars-rating">';
+            for (let i = 1; i <= 5; i++) {
+                if (i <= stars) {
+                    starsHTML += '<span class="star">★</span>';
+                } else {
+                    starsHTML += '<span class="star empty">★</span>';
+                }
+            }
+            starsHTML += '</div>';
+            return starsHTML;
+        }
+
+        // Rendering Functions
+        function renderWishes(wishesToRender, containerId, statsId) {
+            const container = document.getElementById(containerId);
+            const stats = document.getElementById(statsId);
+            
+            if (wishesToRender.length === 0) {
+                container.innerHTML = '';
+                if (containerId === 'resultsWishlist') {
+                    document.getElementById('noResults').style.display = 'block';
+                }
+                stats.innerHTML = '<strong>0</strong> Wünsche gefunden';
+                return;
+            }
+
+            if (containerId === 'resultsWishlist') {
+                document.getElementById('noResults').style.display = 'none';
+            }
+
+            container.innerHTML = wishesToRender.map(wish => {
+                const linkHTML = wish.link ? 
+                    `<a href="${wish.link}" class="wish-link" target="_blank">🔗 Link zum Produkt</a><br>` : '';
+                
+                return `
+                    <div class="wish-item">
+                        ${createStarsHTML(wish.stars)}
+                        <h3 class="wish-title">${wish.title}</h3>
+                        <p class="wish-description">${wish.description}</p>
+                        ${linkHTML}
+                        <div class="wish-price">${wish.price.toFixed(2)}€</div>
+                    </div>
+                `;
+            }).join('');
+
+            const totalPrice = wishesToRender.reduce((sum, wish) => sum + wish.price, 0);
+            stats.innerHTML = `
+                <strong>${wishesToRender.length}</strong> Wünsche | 
+                Gesamtwert: <strong>${totalPrice.toFixed(2)}€</strong>
+            `;
+        }
+
+        function renderAllWishes() {
+            const sortedWishes = [...wishes].sort((a, b) => b.stars - a.stars);
+            renderWishes(sortedWishes, 'allWishlist', 'allWishesStats');
+        }
+
+        function renderResults() {
+            let filteredWishes = [...wishes];
+
+            // Filter by price
+            if (selectedFilters.price) {
+                filteredWishes = filteredWishes.filter(wish => {
+                    if (selectedFilters.price === '0-30') return wish.price <= 30;
+                    if (selectedFilters.price === '30-50') return wish.price > 30 && wish.price <= 50;
+                    if (selectedFilters.price === '50-80') return wish.price > 50 && wish.price <= 80;
+                    if (selectedFilters.price === '80-100') return wish.price > 80 && wish.price <= 100;
+                    if (selectedFilters.price === '100+') return wish.price > 100;
+                    return true;
+                });
+            }
+
+            // Sort by stars (highest first)
+            filteredWishes.sort((a, b) => b.stars - a.stars);
+
+            renderWishes(filteredWishes, 'resultsWishlist', 'resultsStats');
+        }
+
+        // Initialize
+        updateProgress();
+    </script>
+</body>
+</html>
